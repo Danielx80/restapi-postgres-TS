@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserById = exports.getUsers = void 0;
+exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserById = exports.getUsers = void 0;
 const database_1 = require("../database");
 const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -28,15 +28,35 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     return res.json(response.rows);
 });
 exports.getUserById = getUserById;
-// export const createUser = async (req: Request, res: Response): Promise<Response> => {
-// 	return (
-// 	)
-// }
-// export const updateUser = async (req: Request, res: Response): Promise<Response> => {
-// 	return (
-// 	)
-// }
-// export const deleteUser = async (req: Request, res: Response): Promise<Response> => {
-// 	return (
-// 	)
-// }
+const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, email } = req.body;
+    yield database_1.pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email]);
+    return res.status(201).json({
+        message: 'User created Succesfully',
+        user: {
+            email,
+            name
+        }
+    });
+});
+exports.createUser = createUser;
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = parseInt(req.params.id);
+    const { name, email } = req.body;
+    yield database_1.pool.query('UPDATE users SET name = $1, email = $2 WHERE id = $3', [name, email, id]);
+    return res.json({
+        message: 'User update succesfully',
+        user: {
+            id,
+            name,
+            email,
+        }
+    });
+});
+exports.updateUser = updateUser;
+const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = parseInt(req.params.id);
+    yield database_1.pool.query('DELETE FROM users WHERE id = $1', [id]);
+    return res.status(200).json(`User ${id} delete succesfully`);
+});
+exports.deleteUser = deleteUser;
